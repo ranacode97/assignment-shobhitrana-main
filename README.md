@@ -1,53 +1,53 @@
-COMP7024 Assignment - Programming for Data Science
+COMP7024 Programming for Data Science – Assignment Report
 
-Student Name: Shobhit Rana
-Student ID: 22076699
-Subject: Programming for Data Science (COMP7024)
-University: Western Sydney University
+Student Information
+	•	Name: Shobhit Rana
+	•	Student ID: 22076699
+	•	Subject Name: Programming for Data Science
+	•	Subject Code: COMP7024
 
 Overview
 
-This assignment focuses on analyzing two synthetic healthcare datasets (PG1 and PG2) using R. The analysis involves merging datasets, data cleaning, deriving new variables (like age and age groups), and visualizing patterns in COVID-19 patient data.
+This R Markdown assignment focuses on data wrangling, analysis, and visualization using R. The datasets used simulate real-world healthcare data, covering patient information, clinical conditions, and healthcare encounters. The report answers specific analytical questions using two versions of datasets (PG1 and PG2) to compare COVID-19 cases and common health conditions across demographics and geographies.
 
-Key R libraries used:
-	•	ggplot2
-	•	dplyr
-	•	tidyverse
+Contents
 
-Datasets
-	•	patientsPG1.csv, patientsPG2.csv
-	•	conditionsPG1.csv, conditionsPG2.csv
-	•	encountersPG1.csv, encountersPG2.csv
+Q1: COVID-19 Analysis
 
-Tasks Performed
+For both PG1 and PG2 datasets:
+	•	Merged patient and condition data to analyze COVID-19 occurrences.
+	•	Computed average death date for 2020 to estimate age of patients.
+	•	Created age groups and analyzed COVID-19 case frequency across age ranges.
+	•	Visualized county-level distribution and age-based trends of COVID-19 cases.
 
-Q1: COVID-19 Patient Analysis
-	•	Merged patient and condition datasets.
-	•	Calculated age using BIRTHDATE and DEATHDATE.
-	•	Identified and visualized COVID-19 and suspected COVID-19 cases by:
-	•	County distribution (bar plots)
-	•	Age group distribution (0–18, 19–35, 36–50, 51+)
+Q2: Most Common Symptoms Analysis
 
-Q2: Most Frequent Symptoms (Non-COVID)
-	•	Generated frequency tables of medical conditions.
-	•	Filtered out COVID-19 related cases.
-	•	Extracted top 10 most common conditions:
-	•	For all patients
-	•	Separately for males and females
+For both datasets:
+	•	Identified the top 10 most frequent non-COVID-19 conditions.
+	•	Compared these symptoms across all patients, male-only, and female-only groups.
+	•	Displayed results in tabular form for clear comparison.
 
-📁 Folder Structure
+Data Files Used
+	•	patientsPG1.csv
+	•	conditionsPG1.csv
+	•	encountersPG1.csv
+	•	patientsPG2.csv
+	•	conditionsPG2.csv
+	•	encountersPG2.csv
 
-.
-├── patientsPG1.csv
-├── patientsPG2.csv
-├── conditionsPG1.csv
-├── conditionsPG2.csv
-├── encountersPG1.csv
-├── encountersPG2.csv
-├── 22076699_Assignment.Rmd
-├── 22076699_Assignment.pdf
-└── README.md
+Tools & Packages
+	•	dplyr, tidyverse, ggplot2: For data manipulation and visualization
+	•	base R: For merging datasets and basic analysis
+
+Visualizations
+	•	Bar charts depicting:
+	•	COVID-19 case distribution by county
+	•	COVID-19 case distribution by age group
+
+Key Functions
+	•	Custom Age Calculator: Estimated patient age using birth and death dates or a proxy average date for the living.
+	•	Group Categorization: Used cut() to bin patients into age ranges.
 
 Declaration
 
-This work is original and complies with Western Sydney University’s academic integrity policies. No unauthorized collaboration or copying was involved.
+This assignment is original and adheres to academic integrity policies, with no unauthorized collaboration or plagiarism.
