@@ -19,7 +19,7 @@ Datasets
 	•	conditionsPG1.csv, conditionsPG2.csv
 	•	encountersPG1.csv, encountersPG2.csv
 
-📊 Tasks Performed
+Tasks Performed
 
 Q1: COVID-19 Patient Analysis
 	•	Merged patient and condition datasets.
