@@ -1,0 +1,420 @@
+---
+title: "22076699 Assignment"
+author: "COMP7024 Programming for Data Science"
+output: pdf_document
+---
+ * Student Surname: Rana
+ * Student Firstname: Shobhit
+ * Student ID: 22076699
+ * Subject Name: Programming for Data Science
+ * Subject Code: COMP7024
+
+***
+**Declaration**
+By including this statement, we the authors of this work, verify that:
+• We hold a copy of this assignment that we can produce if the original is lost or damaged.
+• We here by certify that no part of this assignment/product has been copied from any otherstudent’s work or from any other source except where due acknowledgement is made in the assignment.
+• No part of this assignment/product has been written/produced for us by another person except where such collaboration has been authorised by the subject lecturer/tutor concerned.
+• We are aware that this work may be reproduced and submitted to plagiarism detection software programs for the purpose of detecting possible plagiarism (which may retain a copy on its database for future plagiarism checking).
+• We hereby certify that we have read and understand what the School of Computing, Engineering and Mathematics defines as minor and substantial breaches of misconduct as outlined in the learning guide for this unit.
+
+***
+
+```{r}
+setwd("~/Documents/R files")
+patientsPG1 = read.csv("patientsPG1.csv")
+patientsPG2 = read.csv("patientsPG2.csv")
+conditionsPG1 = read.csv("conditionsPG1.csv")
+conditionsPG2 = read.csv("conditionsPG2.csv")
+encountersPG1 = read.csv("encountersPG1.csv")
+encountersPG2 = read.csv("encountersPG2.csv")
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+
+
+##Q1
+##For dataset 1
+
+#Merging patientsPG1 to conditionsPG1 based on Id and Patient Id columns
+patientCondPG1 = merge.data.frame(patientsPG1, conditionsPG1, by.x = "Id", by.y = "PATIENT")
+
+#Finding mean death date for year 2020
+patientCondPG1$DEATHDATE <- as.Date(patientCondPG1$DEATHDATE)
+patientCondPG1_2020 <- patientCondPG1 %>% filter(format(DEATHDATE, "%Y") == "2020")
+mean_date <- mean(patientCondPG1_2020$DEATHDATE, na.rm = TRUE)
+
+
+#calculating age by first converting date to months then subtracting with mean date or death date and converting floor value to numeric
+age_calculator = function(x, y){
+  result = floor((as.numeric(y) - as.numeric(x))/365)
+  return(as.numeric(result))
+}
+
+#Using mean death date in 2020 as the dataset is from 2020 for people still alive
+patientCondPG1$Age = ifelse(is.na(patientCondPG1$DEATHDATE), age_calculator(as.Date(patientCondPG1$BIRTHDATE), mean_date), age_calculator(as.Date(patientCondPG1$BIRTHDATE), as.Date(patientCondPG1$DEATHDATE)))
+
+#Making a subset that contains only covid patients
+covidPatients = subset(patientCondPG1, patientCondPG1$DESCRIPTION == "COVID-19" | patientCondPG1$DESCRIPTION == "Suspected COVID-19")
+
+#Frequency of covid patients across counties
+countyCovid = covidPatients %>%
+  count(COUNTY)
+
+# Visualising the distribution of patients with COVID-19 in different counties
+ggplot(data = countyCovid) + 
+  geom_histogram(mapping = aes(x = COUNTY, y = n), stat = "identity") +
+  theme(axis.title.x = element_text(vjust = 1)) +
+  labs(title = "Distribution of COVID-19 Patients", x = "County", y = "COVID-19 Cases") +
+  theme(axis.title.x = element_text(margin = margin(t=20))) +
+  coord_flip()
+```
+
+```{r}
+#Defining age groups and its corresponding labels
+ageGrp <- c(0, 18, 35, 50, Inf)
+ageGrpLabel <- c("0-18", "19-35", "36-50", "51+")
+
+#Putting labels for every age that falls under a particular age_group
+covidPatients$age_group = cut(covidPatients$Age, breaks = ageGrp, labels = ageGrpLabel)
+covidPatients <- covidPatients %>% filter(!is.na(age_group))
+
+#Frequency of patients in various age group
+ageCovid = covidPatients %>%
+  count(age_group)
+
+#Visualizing age distribution
+ggplot(data = ageCovid, aes(x = age_group, y = n)) +
+  geom_histogram(stat = "identity") +
+  labs(title = "Distribution of COVID-19 patients across Age Groups", x = "Age Groups", y = "COVID-19 Cases")
+```
+
+
+
+
+
+
+```{r}
+##For dataset 2
+
+#Merging patientsPG2 to conditionsPG2 based on Id and Patient Id columns
+patientCondPG2 = merge.data.frame(patientsPG2, conditionsPG2, by.x = "Id", by.y = "PATIENT")
+
+#Finding mean death date for year 2020
+patientCondPG2$DEATHDATE <- as.Date(patientCondPG2$DEATHDATE)
+patientCondPG2_2020 <- patientCondPG2 %>% filter(format(DEATHDATE, "%Y") == "2020")
+mean_date1 <- mean(patientCondPG2_2020$DEATHDATE, na.rm = TRUE)
+
+#Using mean death date in 2020 as the dataset is from 2020 for people still alive
+patientCondPG2$Age = ifelse(is.na(patientCondPG2$DEATHDATE), age_calculator(as.Date(patientCondPG2$BIRTHDATE), mean_date1), age_calculator(as.Date(patientCondPG2$BIRTHDATE), as.Date(patientCondPG2$DEATHDATE)))
+
+#Making a subset that contains only covid patients
+covidPatients1 = subset(patientCondPG2, patientCondPG2$DESCRIPTION == "COVID-19" | patientCondPG2$DESCRIPTION == "Suspected COVID-19")
+
+#Frequency of covid patients across counties
+countyCovid1 = covidPatients1 %>%
+  count(COUNTY)
+
+# Visualising the distribution of patients with COVID-19 in different counties
+ggplot(data = countyCovid1) + 
+  geom_histogram(mapping = aes(x = COUNTY, y = n), stat = "identity") +
+  theme(axis.title.x = element_text(vjust = 1)) +
+  labs(title = "Distribution of COVID-19 Patients", x = "County", y = "COVID-19 Cases") +
+  theme(axis.title.x = element_text(margin = margin(t=20))) +
+  coord_flip()
+```
+
+
+```{r}
+#Defining age groups and its corresponding labels
+ageGrp <- c(0, 18, 35, 50, Inf)
+ageGrpLabel <- c("0-18", "19-35", "36-50", "51+")
+
+#Putting labels for every age that falls under a particular age_group
+covidPatients1$age_group = cut(covidPatients1$Age, breaks = ageGrp, labels = ageGrpLabel)
+covidPatients1 <- covidPatients1 %>% filter(!is.na(age_group))
+
+#Frequency of patients in various age group
+ageCovid1 = covidPatients1 %>%
+  count(age_group)
+
+#Visualizing age distribution
+ggplot(data = ageCovid1, aes(x = age_group, y = n)) +
+  geom_histogram(stat = "identity") +
+  labs(title = "Distribution of COVID-19 patients across Age Groups", x = "Age Groups", y = "COVID-19 Cases")
+```
+
+
+```{r}
+##Q2
+##For dataset 1
+##For both genders
+#Counts the frequency of Description except covid-19 and suspected .
+symptoms = table(conditionsPG1$DESCRIPTION,exclude = c("COVID-19", "Suspected COVID-19"))
+#Converting its data type to data frame
+symptoms_df = as.data.frame(symptoms[conditionsPG1$DESCRIPTION])
+#Ommiting out Nas and duplicate values 
+symptoms_df = distinct(na.omit(symptoms_df))
+#Changing the order to descending order of Freq
+symptoms_df[order(symptoms_df$Freq, decreasing = TRUE),]
+#Showing top 10 values that are descending in order
+top10_symptoms = head(symptoms_df[order(symptoms_df$Freq, decreasing = TRUE),], 10)
+top10_symptoms
+```
+```{r}
+##For M
+#Making subset of data with only Male patients
+symptomsM = subset(patientCondPG1, patientCondPG1$GENDER == "M")
+#Creating frequency table and excluding covid-19 and suspected cases
+symptomsM_tbl = table(c(symptomsM$DESCRIPTION) ,exclude = c("COVID-19", "Suspected COVID-19"))
+#Converting to data frame
+symptomsM_df = as.data.frame(symptomsM_tbl[symptomsM$DESCRIPTION])
+#Adding gender to frequency table
+symptomsM_df$GENDER = symptomsM$GENDER
+#Ommiting Nas and duplicate values
+symptomsM_df = distinct(na.omit(symptomsM_df))
+#Printing top 10 symptoms in descending order
+top10_symptomsM = head(symptomsM_df[order(symptomsM_df$Freq, decreasing = TRUE),], 10)
+top10_symptomsM
+```
+
+```{r}
+##For F
+#Making subset of data with only Female patients
+symptomsF = subset(patientCondPG1, patientCondPG1$GENDER == "F")
+#Creating frequency table and excluding covid-19 and suspected cases
+symptomsF_tbl = table(c(symptomsF$DESCRIPTION) ,exclude = c("COVID-19", "Suspected COVID-19"))
+#Converting to data frame
+symptomsF_df = as.data.frame(symptomsF_tbl[symptomsF$DESCRIPTION])
+#Adding gender in frequency table
+symptomsF_df$GENDER = symptomsF$GENDER
+#Ommiting Nas and duplicate values
+symptomsF_df = distinct(na.omit(symptomsF_df))
+#Printing top 10 symptoms in descending order
+top10_symptomsF = head(symptomsF_df[order(symptomsF_df$Freq, decreasing = TRUE),], 10)
+top10_symptomsF
+```
+
+```{r}
+##For dataset 2
+##For both genders
+#Counts the frequency of Description except covid-19 and suspected .
+symptoms1 = table(conditionsPG2$DESCRIPTION,exclude = c("COVID-19", "Suspected COVID-19"))
+#Converting its data type to data frame
+symptoms_df1 = as.data.frame(symptoms1[conditionsPG2$DESCRIPTION])
+#Ommiting out Nas and duplicate values 
+symptoms_df1 = distinct(na.omit(symptoms_df1))
+#Changing the order to descending order of Freq
+symptoms_df1[order(symptoms_df1$Freq, decreasing = TRUE),]
+#Showing top 10 values that are descending in order
+top10_symptoms1 = head(symptoms_df1[order(symptoms_df1$Freq, decreasing = TRUE),], 10)
+top10_symptoms1
+```
+
+```{r}
+##For M
+#Making subset of data with only Male patients
+symptomsM1 = subset(patientCondPG2, patientCondPG2$GENDER == "M")
+#Creating frequency table and excluding covid-19 and suspected cases
+symptomsM_tbl1 = table(c(symptomsM1$DESCRIPTION) ,exclude = c("COVID-19", "Suspected COVID-19"))
+#Converting to data frame
+symptomsM_df1 = as.data.frame(symptomsM_tbl1[symptomsM1$DESCRIPTION])
+#Adding gender to frequency table
+symptomsM_df1$GENDER = symptomsM1$GENDER
+#Ommiting Nas and duplicate values
+symptomsM_df1 = distinct(na.omit(symptomsM_df1))
+#Printing top 10 symptoms in descending order
+top10_symptomsM1 = head(symptomsM_df1[order(symptomsM_df1$Freq, decreasing = TRUE),], 10)
+top10_symptomsM1
+```
+
+```{r}
+##For F
+#Making subset of data with only Female patients
+symptomsF1 = subset(patientCondPG2, patientCondPG2$GENDER == "F")
+#Creating frequency table and excluding covid-19 and suspected cases
+symptomsF_tbl1 = table(c(symptomsF1$DESCRIPTION) ,exclude = c("COVID-19", "Suspected COVID-19"))
+#Converting to data frame
+symptomsF_df1 = as.data.frame(symptomsF_tbl1[symptomsF1$DESCRIPTION])
+#Adding gender in frequency table
+symptomsF_df1$GENDER = symptomsF1$GENDER
+#Ommiting Nas and duplicate values
+symptomsF_df1 = distinct(na.omit(symptomsF_df1))
+#Printing top 10 symptoms in descending order
+top10_symptomsF1 = head(symptomsF_df1[order(symptomsF_df1$Freq, decreasing = TRUE),], 10)
+top10_symptomsF1
+```
+
+```{r}
+##Q3
+##For dataset 1
+#Merging/Inner join dataset covidPatients and encountersPG1
+covidEncounters = merge.data.frame(covidPatients, encountersPG1, by.x = "Id", by.y = "PATIENT")
+
+#Making subset of covidEncounters for the rows that contain ambulatory, emergency, inpatient or urgent care in ENCOUNTERCLASS
+hospitalisationRate = subset(covidEncounters, covidEncounters$ENCOUNTERCLASS %in% c("ambulatory", "emergency", "inpatient", "urgent care"))
+
+#Counting for hospitalisation rates for each gender
+genderHospitalizationCount = hospitalisationRate %>%
+  group_by(GENDER, ENCOUNTERCLASS) %>%
+  count() %>%
+  arrange(desc(n))
+
+#Visualizing hospitalization rate for each gender
+ggplot(data = genderHospitalizationCount) +
+  geom_histogram(mapping = aes(x = ENCOUNTERCLASS, y = n, fill = GENDER), 
+                 stat = "identity", position = position_dodge()) +
+  labs(title = "Hospitalization rates for COVID-19 Patients",
+       x = "Encounter Class",
+       y = "Number of Encounters",
+       fill = "Gender")
+
+```
+
+
+```{r}
+#Counting hospitalization rates for each county
+countyHospitalizationCount = hospitalisationRate %>%
+  group_by(COUNTY, ENCOUNTERCLASS) %>%
+  count() %>%
+  arrange(desc(n))
+
+#Visualizing hospitalization rate for each county
+ggplot(data = countyHospitalizationCount) +
+  geom_histogram(mapping = aes(x = ENCOUNTERCLASS, y = n, fill = COUNTY), 
+                 stat = "identity", position = position_dodge()) +
+  labs(title = "Hospitalisation rates for COVID-19 Patients",
+       x = "Encounter Class",
+       y = "Number of Encounters",
+       fill = "County")
+
+```
+
+```{r}
+##For dataset 2
+#Merging/Inner join dataset covidPatients and encountersPG1
+covidEncounters1 = merge.data.frame(covidPatients1, encountersPG2, by.x = "Id", by.y = "PATIENT")
+
+#Making subset of covidEncounters for the rows that contain ambulatory, emergency, inpatient or urgent care in ENCOUNTERCLASS
+hospitalisationRate1 = subset(covidEncounters1, covidEncounters1$ENCOUNTERCLASS %in% c("ambulatory", "emergency", "inpatient", "urgent care"))
+
+#Counting for hospitalisation rates for each gender
+genderHospitalizationCount1 = hospitalisationRate1 %>%
+  group_by(GENDER, ENCOUNTERCLASS) %>%
+  count() %>%
+  arrange(desc(n))
+
+#Visualizing hospitalization rate for each gender
+ggplot(data = genderHospitalizationCount1) +
+  geom_histogram(mapping = aes(x = ENCOUNTERCLASS, y = n, fill = GENDER), 
+                 stat = "identity", position = position_dodge()) +
+  labs(title = "Hospitalization rates for COVID-19 Patients",
+       x = "Encounter Class",
+       y = "Number of Encounters",
+       fill = "Gender")
+```
+
+```{r}
+#Counting hospitalization rates for each county
+countyHospitalizationCount1 = hospitalisationRate1 %>%
+  group_by(COUNTY, ENCOUNTERCLASS) %>%
+  count() %>%
+  arrange(desc(n))
+
+#Visualizing hospitalization rate for each county
+ggplot(data = countyHospitalizationCount1) +
+  geom_histogram(mapping = aes(x = ENCOUNTERCLASS, y = n, fill = COUNTY), 
+                 stat = "identity", position = position_dodge()) +
+  labs(title = "Hospitalisation rates for COVID-19 Patients",
+       x = "Encounter Class",
+       y = "Number of Encounters",
+       fill = "County")
+```
+
+```{r}
+##Q4
+##For dataset 1
+#Calculating recovery time and flagging patients based on their recoveries
+covidRecovery = covidPatients %>%
+  mutate(Start_date = as.Date(START), 
+         Stop_date = as.Date(STOP),
+         Days_to_recover = as.numeric(difftime(Stop_date, Start_date, units = "days")),
+         ## Identify if patient has recovered or not recovered with T/F condition
+         Recovered = !is.na(Stop_date))
+
+#Count for each genders that have recovered and not recovered
+genderRecoveryCount = covidRecovery %>%
+  group_by(GENDER, Recovered) %>%
+  count() %>%
+  arrange(desc(n))
+
+#Visualizing recovery count for each gender
+ggplot(data = genderRecoveryCount) +
+  geom_histogram(mapping = aes(x = Recovered, y = n, fill = GENDER), 
+                 stat = "identity", position = position_dodge()) +
+  labs(title = "Recovery rates for COVID-19 Patients",
+       x = "Recovered",
+       y = "Number of patients",
+       fill = "Gender")
+```
+
+```{r}
+#Count for all ages that have recovered and not recovered
+ageRecoveryCount = covidRecovery %>%
+  group_by(Age, Recovered) %>%
+  count() %>%
+  arrange(desc(n))
+
+#Visualizing recovery count for all ages
+ggplot(data = ageRecoveryCount) +
+  geom_histogram(mapping = aes(x = Recovered, y = n, fill = Age), 
+                 stat = "identity", position = position_dodge()) +
+  labs(title = "Recovery rates for COVID-19 Patients",
+       x = "Recovered",
+       y = "Number of patients",
+       fill = "Age")
+```
+
+```{r}
+##For dataset 2
+#Calculating recovery time and flagging patients based on their recoveries
+covidRecovery1 = covidPatients1 %>%
+  mutate(Start_date = as.Date(START), 
+         Stop_date = as.Date(STOP),
+         Days_to_recover = as.numeric(difftime(Stop_date, Start_date, units = "days")),
+         ## Identify if patient has recovered or not recovered with T/F condition
+         Recovered = !is.na(Stop_date))
+
+#Count for each genders that have recovered and not recovered
+genderRecoveryCount1 = covidRecovery1 %>%
+  group_by(GENDER, Recovered) %>%
+  count() %>%
+  arrange(desc(n))
+
+#Visualizing recovery count for each gender
+ggplot(data = genderRecoveryCount1) +
+  geom_histogram(mapping = aes(x = Recovered, y = n, fill = GENDER), 
+                 stat = "identity", position = position_dodge()) +
+  labs(title = "Recovery rates for COVID-19 Patients",
+       x = "Recovered",
+       y = "Number of patients",
+       fill = "Gender")
+```
+
+```{r}
+#Count for all ages that have recovered and not recovered
+ageRecoveryCount1 = covidRecovery1 %>%
+  group_by(Age, Recovered) %>%
+  count() %>%
+  arrange(desc(n))
+
+#Visualizing recovery count for all ages
+ggplot(data = ageRecoveryCount1) +
+  geom_histogram(mapping = aes(x = Recovered, y = n, fill = Age), 
+                 stat = "identity", position = position_dodge()) +
+  labs(title = "Recovery rates for COVID-19 Patients",
+       x = "Recovered",
+       y = "Number of patients",
+       fill = "Age")
+```
+
